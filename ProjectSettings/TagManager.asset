@@ -7,6 +7,8 @@ TagManager:
   - Dashes
   - Normal
   - Parent
+  - Path
+  - FinalPoint
   layers:
   - Default
   - TransparentFX

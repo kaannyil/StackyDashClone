@@ -5,15 +5,17 @@ using DG.Tweening;
 
 public class PlayerControl : MonoBehaviour
 {
-    [SerializeField] private GameObject dashesParent, prevDash;
-    [SerializeField] private float speedTime;
-    [SerializeField] private Transform target, myPosition, yPosition;
+    Animator animator;
 
-    private Transform characterPos;
+    [SerializeField] private GameObject dashesParent, prevDash;
+    [SerializeField] private float speedTime,pathTime;
+    [SerializeField] private Transform target, myPosition, yPosition, finalPoint;
+    [SerializeField] private Vector3[] wayPoints;
 
     public static PlayerControl instance;
 
     RaycastHit hit;
+
 
     private void Awake()
     {
@@ -22,10 +24,14 @@ public class PlayerControl : MonoBehaviour
             instance = this;
         }
     }
-    void Update()
-    {
-        // transform.rotation = target.rotation;
 
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
+
+    void Update()  // Character X and Z Axis Movement
+    {
         if (Input.GetKeyDown(KeyCode.LeftArrow) || MobileInput.Instance.swipeLeft)
         {
             this.transform.rotation = Quaternion.Euler(0, -90, 0);
@@ -33,63 +39,95 @@ public class PlayerControl : MonoBehaviour
             if (Physics.Raycast(this.transform.position, transform.TransformDirection(Vector3.forward), out hit))
             {
                 target.transform.position = hit.point - new Vector3(-.5f, 0f, 0f);
-                myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear);
+                myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear)
+                .OnStart(animationStart).OnComplete(animationFinish);
             }
 
-            //*rb.velocity = Vector3.left * speed;*//*
         }
+
         else if (Input.GetKeyDown(KeyCode.RightArrow) || MobileInput.Instance.swipeRight)
         {
             this.transform.rotation = Quaternion.Euler(0, 90, 0);
 
             if (Physics.Raycast(this.transform.position, transform.TransformDirection(Vector3.forward), out hit))
             {
-                target.transform.position = hit.point - new Vector3(.5f, 0f, 0f);
-                myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear);
-            }
 
-            //*rb.velocity = Vector3.right * speed;*//*
+                target.transform.position = hit.point - new Vector3(.5f, 0f, 0f);
+                myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear)
+                .OnStart(animationStart).OnComplete(animationFinish);
+            }
         }
+
         else if (Input.GetKeyDown(KeyCode.UpArrow) || MobileInput.Instance.swipeUp)
         {
             this.transform.rotation = Quaternion.Euler(0, 0, 0);
 
             if (Physics.Raycast(this.transform.position, transform.TransformDirection(Vector3.forward), out hit))
             {
-                target.transform.position = hit.point - new Vector3(0f, 0f, .5f);
-                myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear);
-            }
 
-            //*rb.velocity = Vector3.forward * speed;*//*
+                target.transform.position = hit.point - new Vector3(0f, 0f, .5f);
+                myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear)
+                .OnStart(animationStart).OnComplete(animationFinish);
+            }
         }
+
         else if (Input.GetKeyDown(KeyCode.DownArrow) || MobileInput.Instance.swipeDown)
         {
             this.transform.rotation = Quaternion.Euler(0, 180, 0);
 
             if (Physics.Raycast(this.transform.position, transform.TransformDirection(Vector3.forward), out hit))
             {
+
                 target.transform.position = hit.point - new Vector3(0f, 0f, -.5f);
-                myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear);
+                myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear)
+                .OnStart(animationStart).OnComplete(animationFinish);
             }
-            //*rb.velocity = -Vector3.forward * speed;*//*
         }
-        //*Debug.Log(rb.velocity);*//*
     }
-    public void takeDashes(GameObject dash)
+    public void takeDashes(GameObject dash) // Dash and Character Y Axis Movement
     {
         dash.transform.SetParent(dashesParent.transform);
         Vector3 pos = prevDash.transform.localPosition;
         pos.y -= 0.047f;
         dash.transform.localPosition = pos;
-        Vector3 characterPos = yPosition.transform.position;
+        Vector3 characterPos = yPosition.transform.localPosition;
         characterPos.y += 0.047f;
-        yPosition.transform.position = characterPos;
+        yPosition.transform.localPosition = characterPos;
         prevDash = dash;
 
         prevDash.GetComponent<BoxCollider>().isTrigger = false;
     }
 
 
+    #region Animations
+    private void animationStart()
+    {
+        animator.SetBool("isRunning", true);
+
+    }
+
+    private void animationFinish()
+    {
+        if (hit.collider.gameObject.CompareTag("Path")) // Path Movement and Animation
+        {
+            animator.SetBool("isRunning", false);
+
+            myPosition.transform.DOPath(wayPoints, pathTime, PathType.CatmullRom).SetSpeedBased(true).SetEase(Ease.Linear).SetLookAt(0.05f)
+            .SetOptions(false, AxisConstraint.None, AxisConstraint.X)
+            .OnStart(() => animator.SetBool("isFlying", true)).OnComplete(() => animator.SetBool("isFlying", false));
+        }
+
+        else if (hit.collider.gameObject.CompareTag("FinalPoint"))   // Final Movement and Animation
+        {
+            myPosition.transform.DOMove(finalPoint.transform.position - new Vector3(0,0,1), speedTime).SetSpeedBased(true).SetEase(Ease.Linear)
+            .OnStart(() => animator.SetBool("isRunning", true)).OnComplete(() => animator.SetBool("isRunning", false));
+        }
+        else
+        {
+            animator.SetBool("isRunning", false);
+        }
+    }
+    #endregion
 
 
     /*Animator animator;
@@ -136,7 +174,7 @@ public class PlayerControl : MonoBehaviour
                 Debug.Log(hit.point);
             }
 
-            *//*rb.velocity = Vector3.left * speed;*//*
+            /*rb.velocity = Vector3.left * speed;*//*
         }
         else if (Input.GetKeyDown(KeyCode.RightArrow) || MobileInput.Instance.swipeRight && !isMoving)
         {
