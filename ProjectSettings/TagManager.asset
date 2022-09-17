@@ -9,6 +9,9 @@ TagManager:
   - Parent
   - Path
   - FinalPoint
+  - EdgeCollider
+  - Path2
+  - FinalGround
   layers:
   - Default
   - TransparentFX
