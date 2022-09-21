@@ -9,6 +9,7 @@ public class LevelEndController : MonoBehaviour
 {
     private GameObject finalDash;
     PlayerControl playerControl;
+    
 
     public void levelEndControl(Transform myPosition,Transform yPosition, RaycastHit hit, float counter, float speedTime, AnimationController animationC, Animator animator, List<GameObject> dashList, GameObject finalTakeDash)
     {

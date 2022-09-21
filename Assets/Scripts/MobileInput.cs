@@ -55,6 +55,7 @@ public class MobileInput : MonoBehaviour
         }
 
         #endregion
+
         // Mesafeyi hesaplıyoruz
 
         swipeDelta = Vector2.zero;

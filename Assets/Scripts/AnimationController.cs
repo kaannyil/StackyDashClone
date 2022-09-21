@@ -24,6 +24,10 @@ public class AnimationController : MonoBehaviour
     {
         animator.SetBool("isFlying", false);
     }
+    public void levelEndAnimationStart(Animator animator)
+    {
+        animator.SetBool("levelEnd", true);
+    }
 
 
     /*#region Animations

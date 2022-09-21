@@ -7,8 +7,8 @@ using Sirenix.OdinInspector;
 
 public class PlayerControl : MonoBehaviour
 {
-    [SerializeField] private List<GameObject> dashList = new List<GameObject>();
-    [SerializeField] private GameObject dashesParent, prevDash, firstStack, finalTakeDash;
+    [SerializeField] public List<GameObject> dashList = new List<GameObject>();
+    [SerializeField] private GameObject dashesParent, prevDash, finalTakeDash,vCamFinishStart,vCamEnd,WinPanel;
 
     [HideInInspector] [SerializeField] private AnimationController animationC;
     [HideInInspector] [SerializeField] private PathScript pathControl;
@@ -19,16 +19,17 @@ public class PlayerControl : MonoBehaviour
     [HideInInspector] public float pathTime;
 
     public float speedTime;
-    float counter,timer,timeInterval = 0.03f;
+    float timer,timeInterval = 0.03f;
     [HideInInspector] public bool finalControl = false;
+    public bool canMove;
 
     GameObject finalDash;
     Rigidbody rb;
 
     public Transform target, yPosition;
-    [HideInInspector] public Transform myPosition;
+    public Transform myPosition;
 
-    [HideInInspector] public Vector3[] wayPoints;
+    // [HideInInspector] public Vector3[] wayPoints;
     [HideInInspector] public Animator animator;
 
     public static PlayerControl instance;
@@ -43,7 +44,7 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
-    void Start()    // Animator Component
+    void Start()    // Animator & Rigidbody Component
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
@@ -52,7 +53,8 @@ public class PlayerControl : MonoBehaviour
 
         // Observable.(100).Subscribe(_ => Debug.Log("100 frame"));
     }
-    void FixedUpdate()
+
+    void FixedUpdate()  // Final Movement
     {
         if (finalControl == true)
         {
@@ -80,6 +82,12 @@ public class PlayerControl : MonoBehaviour
                 {
                     rb.velocity = Vector3.zero;
                     animationC.runAnimationFinish(animator);
+                    animationC.levelEndAnimationStart(animator);
+
+                    vCamFinishStart.SetActive(false);
+                    vCamEnd.SetActive(true);
+                    finalControl = false;
+                    StartCoroutine(WinPanelCoroutine());
                 }
             }
         }
@@ -89,7 +97,7 @@ public class PlayerControl : MonoBehaviour
     {
         follower.PathTravelled();
 
-        if (Input.GetKeyDown(KeyCode.LeftArrow) || MobileInput.Instance.swipeLeft)
+        if ((Input.GetKeyDown(KeyCode.LeftArrow) || MobileInput.Instance.swipeLeft) && canMove)
         {
             this.transform.rotation = Quaternion.Euler(0, -90, 0);
 
@@ -97,24 +105,20 @@ public class PlayerControl : MonoBehaviour
             {
                 target.transform.position = hit.point - new Vector3(-.5f, 0f, 0f);
                 transform.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear)
-                .OnStart(animationStart).OnUpdate(() =>
+                .OnStart(() =>
                 {
-                    /*if (stackScript.stackTriggerControl == true)
-                    {
-                        Debug.Log("Stack alýndý.");
-                        DOTween.KillAll(true);
-
-                        *//*Vector3 newTargetPos = target.transform.position;
-                        newTargetPos.y += 0.047f;
-                        target.transform.position = newTargetPos;
-                        myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear);*//*
-                    }*/
-                }).OnComplete(animationFinish);
+                    animationStart();
+                    canMove = false;
+                }).OnComplete(() =>
+                {
+                    animationFinish();
+                    canMove = true;
+                });
             }
 
         }
 
-        else if (Input.GetKeyDown(KeyCode.RightArrow) || MobileInput.Instance.swipeRight)
+        else if ((Input.GetKeyDown(KeyCode.RightArrow) || MobileInput.Instance.swipeRight) && canMove)
         {
             this.transform.rotation = Quaternion.Euler(0, 90, 0);
 
@@ -123,23 +127,19 @@ public class PlayerControl : MonoBehaviour
 
                 target.transform.position = hit.point - new Vector3(.5f, 0f, 0f);
                 transform.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear)
-                .OnStart(animationStart).OnUpdate(() =>
+                .OnStart(() =>
                 {
-                    /*if (stackScript.stackTriggerControl == true)
-                    {
-                        Debug.Log("Stack alýndý.");
-                        DOTween.KillAll(true);
-
-                        *//*Vector3 newTargetPos = target.transform.position;
-                        newTargetPos.y += 0.047f;
-                        target.transform.position = newTargetPos;
-                        myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear);*//*
-                    }*/
-                }).OnComplete(animationFinish);
+                    animationStart();
+                    canMove = false;
+                }).OnComplete(() =>
+                {
+                    animationFinish();
+                    canMove = true;
+                });
             }
         }
 
-        else if (Input.GetKeyDown(KeyCode.UpArrow) || MobileInput.Instance.swipeUp)
+        else if ((Input.GetKeyDown(KeyCode.UpArrow) || MobileInput.Instance.swipeUp) && canMove)
         {
             this.transform.rotation = Quaternion.Euler(0, 0, 0);
 
@@ -148,23 +148,19 @@ public class PlayerControl : MonoBehaviour
 
                 target.transform.position = hit.point - new Vector3(0f, 0f, .5f);
                 transform.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear)
-                .OnStart(animationStart).OnUpdate(() =>
+                .OnStart(() =>
                 {
-                    /*if (stackScript.stackTriggerControl == true)
-                    {
-                        Debug.Log("Stack alýndý.");
-                        DOTween.KillAll(true);
-
-                        *//*Vector3 newTargetPos = target.transform.position;
-                        newTargetPos.y += 0.047f;
-                        target.transform.position = newTargetPos;
-                        myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear);*//*
-                    }*/
-                }).OnComplete(animationFinish);
+                    animationStart();
+                    canMove = false;
+                }).OnComplete(() =>
+                {
+                    animationFinish();
+                    canMove = true;
+                });
             }   
         }
 
-        else if (Input.GetKeyDown(KeyCode.DownArrow) || MobileInput.Instance.swipeDown)
+        else if ((Input.GetKeyDown(KeyCode.DownArrow) || MobileInput.Instance.swipeDown) && canMove)
         {
             this.transform.rotation = Quaternion.Euler(0, 180, 0);
 
@@ -173,19 +169,15 @@ public class PlayerControl : MonoBehaviour
 
                 target.transform.position = hit.point - new Vector3(0f, 0f, -.5f);
                 transform.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear)
-                .OnStart(animationStart).OnUpdate(() =>
+                .OnStart(() =>
                 {
-                    /*if (stackScript.stackTriggerControl == true)
-                    {
-                        Debug.Log("Stack alýndý.");
-                        DOTween.KillAll();
-
-                        *//*Vector3 newTargetPos = target.transform.position;
-                        newTargetPos.y += 0.047f;
-                        target.transform.position = newTargetPos;
-                        myPosition.DOMove(target.transform.position, speedTime).SetSpeedBased(true).SetEase(Ease.Linear);*//*
-                    }*/
-                }).OnComplete(animationFinish);
+                    animationStart();
+                    canMove = false;
+                }).OnComplete(() =>
+                {
+                    animationFinish();
+                    canMove = true;
+                });
             }
         }
     }
@@ -193,7 +185,6 @@ public class PlayerControl : MonoBehaviour
     {
         dash.transform.SetParent(dashesParent.transform);
         dashList.Add(dash);
-        counter = dashList.Count;
         Vector3 pos = prevDash.transform.localPosition;
         pos.y -= 0.047f;
         dash.transform.localPosition = pos;
@@ -215,6 +206,7 @@ public class PlayerControl : MonoBehaviour
     {
         if (hit.collider.gameObject.CompareTag("Path")) // Path Movement and Animation
         {
+            StartCoroutine(canMoveCoroutine());
             follower.distanceTravelledBool = true;
             animationC.runAnimationFinish(animator);
             animationC.flyAnimationStart(animator);
@@ -223,6 +215,7 @@ public class PlayerControl : MonoBehaviour
 
         else if (hit.collider.gameObject.CompareTag("Path2")) // Path Movement and Animation
         {
+            StartCoroutine(canMoveCoroutine());
             follower.distanceTravelledBoolBack = true;
             animationC.runAnimationFinish(animator);
             animationC.flyAnimationStart(animator);
@@ -233,15 +226,14 @@ public class PlayerControl : MonoBehaviour
         {
             // levelEnd.levelEndControl(myPosition, yPosition, hit, counter, speedTime, animationC, animator,dashList,finalTakeDash;
             // hit.collider.gameObject.SetActive(false);
-            finalControl = true;
+            StartCoroutine(canMoveCoroutine());
 
-            /*for (int i = 0; i < dashList.Count-1; i++)
-            {
-                dashList[i].GetComponent<BoxCollider>().isTrigger = true;
-            }*/
+            vCamFinishStart.SetActive(true);
+            finalControl = true;
 
             yPosition.DOLocalMoveY(0f, speedTime * 0.04f).SetSpeedBased().SetEase(Ease.Linear);
         }
+
         else
         {
             animationC.runAnimationFinish(animator);
@@ -249,7 +241,7 @@ public class PlayerControl : MonoBehaviour
     }   // Path and Final Point
     #endregion
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter(Collider other) // EdgeCollider Trigger
     {
         if (other.gameObject.tag == "EdgeCollider") 
         {
@@ -257,20 +249,25 @@ public class PlayerControl : MonoBehaviour
 
             animationC.runAnimationFinish(animator);
             animationC.flyAnimationFinish(animator);
-            StartCoroutine(halfsecond());
+            StartCoroutine(pathHalfSecond());
         }
     }
-    IEnumerator halfsecond()
+    IEnumerator pathHalfSecond()
     {
         yield return new WaitForSeconds(.2f);
         follower.distanceTravelledBool = false;
         follower.distanceTravelledBoolBack = false;
+        canMove = true;
     }
-
-    [Button]
-    private void vectorTrying()
+    IEnumerator canMoveCoroutine()
     {
-        rb.velocity = Vector3.forward * speedTime;
+        yield return new WaitForSeconds(.01f);
+        canMove = false;
+    }
+    IEnumerator WinPanelCoroutine()
+    {
+        yield return new WaitForSeconds(2f);
+        WinPanel.SetActive(true);
     }
 
     /*Animator animator;

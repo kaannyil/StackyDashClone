@@ -6,13 +6,10 @@ using PathCreation;
 public class Follower : MonoBehaviour
 {
     public PathCreator pathCreator;
-    PlayerControl playerControl;
     public float distanceTravelled;
-    int speed = 10;
-    [HideInInspector]
-    public bool distanceTravelledBool = false;
-    [HideInInspector]
-    public bool distanceTravelledBoolBack = false;
+    int speed = 12;
+    [HideInInspector] public bool distanceTravelledBool = false;
+    [HideInInspector] public bool distanceTravelledBoolBack = false;
     public void PathTravelled()
     {
         if (distanceTravelledBool)
