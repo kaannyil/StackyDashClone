@@ -5,11 +5,13 @@ using UnityEngine;
 public class GameControl : MonoBehaviour
 {
     // Start is called before the first frame update
-    void Start()
+    private void Awake()
     {
         if (Time.timeScale == 0)
         {
             Time.timeScale = 1;
         }
+
+        Application.targetFrameRate = 60;
     }
 }
