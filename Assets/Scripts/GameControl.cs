@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class GameControl : MonoBehaviour
 {
-    // Start is called before the first frame update
     private void Awake()
     {
         if (Time.timeScale == 0)
