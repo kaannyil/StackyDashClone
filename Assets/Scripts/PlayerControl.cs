@@ -66,7 +66,7 @@ public class PlayerControl : MonoBehaviour
                     dashList[dashList.Count - 1].transform.SetParent(finalTakeDash.transform);
 
                     Vector3 yPositionZero = dashList[dashList.Count - 1].transform.localPosition;
-                    yPositionZero.y = 0.506f;
+                    yPositionZero.y = 0.524f;
                     dashList[dashList.Count - 1].transform.localPosition = yPositionZero;
 
                     dashList.Remove(finalDash);
