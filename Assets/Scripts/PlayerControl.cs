@@ -8,14 +8,15 @@ using Sirenix.OdinInspector;
 public class PlayerControl : MonoBehaviour
 {
     [SerializeField] public List<GameObject> dashList = new List<GameObject>();
-    [SerializeField] private GameObject dashesParent, prevDash, finalTakeDash, vCamFinishStart, vCamEnd, WinPanel;
+    [SerializeField] private GameObject dashesParent, prevDash, finalTakeDash, vCamFinishStart, vCamEnd, WinPanel, GameOverPanel;
 
     [HideInInspector] [SerializeField] private AnimationController animationC;
     [HideInInspector] [SerializeField] private Follower follower;
     [HideInInspector] [SerializeField] private StackScript stackScript;
 
+    public int remainingStep;
     public float speedTime;
-    float timer,timeInterval = 0.03f;
+    float timer, timeInterval = 0.03f;
 
     [HideInInspector] public bool finalControl = false;
     public bool canMove;
@@ -91,7 +92,7 @@ public class PlayerControl : MonoBehaviour
     {
         follower.PathTravelled();
 
-        if ((Input.GetKeyDown(KeyCode.LeftArrow) || MobileInput.Instance.swipeLeft) && canMove)
+        if ((Input.GetKeyDown(KeyCode.LeftArrow) || MobileInput.Instance.swipeLeft) && canMove && remainingStep >= 1)
         {
             this.transform.rotation = Quaternion.Euler(0, -90, 0);
 
@@ -103,6 +104,9 @@ public class PlayerControl : MonoBehaviour
                 {
                     animationStart();
                     canMove = false;
+
+                    remainingStep--;
+
                 }).OnComplete(() =>
                 {
                     animationFinish();
@@ -112,7 +116,7 @@ public class PlayerControl : MonoBehaviour
 
         }   // Left Movement
 
-        else if ((Input.GetKeyDown(KeyCode.RightArrow) || MobileInput.Instance.swipeRight) && canMove)
+        else if ((Input.GetKeyDown(KeyCode.RightArrow) || MobileInput.Instance.swipeRight) && canMove && remainingStep >= 1)
         {
             this.transform.rotation = Quaternion.Euler(0, 90, 0);
 
@@ -125,6 +129,9 @@ public class PlayerControl : MonoBehaviour
                 {
                     animationStart();
                     canMove = false;
+
+                    remainingStep--;
+
                 }).OnComplete(() =>
                 {
                     animationFinish();
@@ -133,7 +140,7 @@ public class PlayerControl : MonoBehaviour
             }
         }   // Right Movement
 
-        else if ((Input.GetKeyDown(KeyCode.UpArrow) || MobileInput.Instance.swipeUp) && canMove)
+        else if ((Input.GetKeyDown(KeyCode.UpArrow) || MobileInput.Instance.swipeUp) && canMove && remainingStep >= 1)
         {
             this.transform.rotation = Quaternion.Euler(0, 0, 0);
 
@@ -146,6 +153,9 @@ public class PlayerControl : MonoBehaviour
                 {
                     animationStart();
                     canMove = false;
+
+                    remainingStep--;
+
                 }).OnComplete(() =>
                 {
                     animationFinish();
@@ -154,7 +164,7 @@ public class PlayerControl : MonoBehaviour
             }   
         }   // Up Movement
 
-        else if ((Input.GetKeyDown(KeyCode.DownArrow) || MobileInput.Instance.swipeDown) && canMove)
+        else if ((Input.GetKeyDown(KeyCode.DownArrow) || MobileInput.Instance.swipeDown) && canMove && remainingStep >= 1)
         {
             this.transform.rotation = Quaternion.Euler(0, 180, 0);
 
@@ -167,6 +177,9 @@ public class PlayerControl : MonoBehaviour
                 {
                     animationStart();
                     canMove = false;
+
+                    remainingStep--;
+
                 }).OnComplete(() =>
                 {
                     animationFinish();
@@ -174,6 +187,8 @@ public class PlayerControl : MonoBehaviour
                 });
             }
         }   // Down Movement
+
+        if (remainingStep < 1) StartCoroutine(remainingStepCoroutine());
     }
     public void takeDashes(GameObject dash) // Dash and Character Y Axis Movement
     {
@@ -257,5 +272,11 @@ public class PlayerControl : MonoBehaviour
     {
         yield return new WaitForSeconds(2f);
         WinPanel.SetActive(true);
+    }
+
+    IEnumerator remainingStepCoroutine()
+    {
+        yield return new WaitForSeconds(1f);
+        GameOverPanel.SetActive(true);
     }
 }

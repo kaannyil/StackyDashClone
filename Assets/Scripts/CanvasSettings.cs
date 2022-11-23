@@ -5,8 +5,8 @@ using TMPro;
 
 public class CanvasSettings : MonoBehaviour
 {
-    public TextMeshProUGUI dashCount;
-    int dashListCount;
+    public TextMeshProUGUI dashCount,remainingCount;
+    int dashListCount,remainingStepCount;
     PlayerControl playercontrol;
 
     private void Start()
@@ -17,6 +17,8 @@ public class CanvasSettings : MonoBehaviour
     private void Update()
     {
         dashListCount = playercontrol.dashList.Count;
+        remainingStepCount = playercontrol.remainingStep;
         dashCount.text = dashListCount.ToString();
+        remainingCount.text = remainingStepCount.ToString("Remaining Step : " + "0");
     }
 }

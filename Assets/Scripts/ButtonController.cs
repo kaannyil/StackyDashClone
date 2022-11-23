@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class ButtonController : MonoBehaviour
 {
-    public GameObject cam, restartBut, startButton,stackCountTM;
+    public GameObject cam, restartBut, startButton,stackCountTM,remainingStepTM;
     PlayerControl playercontrol;
     private void Start()
     {
@@ -18,6 +18,7 @@ public class ButtonController : MonoBehaviour
         startButton.SetActive(false);
         restartBut.SetActive(true);
         stackCountTM.SetActive(true);
+        remainingStepTM.SetActive(true);
         StartCoroutine(startCanMove());
     }
     IEnumerator startCanMove()
